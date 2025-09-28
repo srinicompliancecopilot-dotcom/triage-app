@@ -1,17 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supa } from "../../../../lib/supabase";
 
-// Expect JSON like:
-// {
-//   "external_id": "...", "subject": "...", "from": "...", "to": "...", "cc": "...",
-//   "body_html": "<p>...</p>", "body_text": "....", "received_at": "2025-09-27T12:34:56Z"
-// }
+export async function GET() {
+  return NextResponse.json({ ok: true });
+}
 
 export async function POST(req: NextRequest) {
   try {
     const b = await req.json();
 
-    // idempotency: ignore if we've already seen this Gmail message id
+    // idempotency
     if (b.external_id) {
       const { data: existing, error: checkErr } = await supa
         .from("cases")
@@ -36,8 +34,9 @@ export async function POST(req: NextRequest) {
       .single();
     if (caseErr) throw caseErr;
 
-    const receivedAt =
-      b.received_at ? new Date(b.received_at).toISOString() : new Date().toISOString();
+    const receivedAt = b.received_at
+      ? new Date(b.received_at).toISOString()
+      : new Date().toISOString();
 
     const { error: msgErr } = await supa.from("messages").insert({
       case_id: caseRow.id,
@@ -55,9 +54,4 @@ export async function POST(req: NextRequest) {
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: String(e?.message || e) }, { status: 400 });
   }
-}
-
-export async function GET() {
-  // simple healthcheck
-  return NextResponse.json({ ok: true });
 }
