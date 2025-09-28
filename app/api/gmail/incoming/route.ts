@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supa } from "../../../lib/supabase";
+import { supa } from "../../../../lib/supabase";
 
 // Expect JSON like:
 // {

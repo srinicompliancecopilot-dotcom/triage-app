@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { graphGet } from "../../../../lib/graph";
-import { supa } from "../../../lib/supabase";
+import { supa } from "../../../../lib/supabase";
 
 const MAILBOX = process.env.GRAPH_MAILBOX_ID!; // email or user id of the shared inbox
 
