@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supa } from "../../../../lib/supabase";
 
+// Healthcheck
 export async function GET() {
   return NextResponse.json({ ok: true });
 }
@@ -9,7 +10,7 @@ export async function POST(req: NextRequest) {
   try {
     const b = await req.json();
 
-    // idempotency
+    // idempotency by Gmail message id
     if (b.external_id) {
       const { data: existing, error: checkErr } = await supa
         .from("cases")
@@ -22,6 +23,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // create case
     const { data: caseRow, error: caseErr } = await supa
       .from("cases")
       .insert({
@@ -34,6 +36,7 @@ export async function POST(req: NextRequest) {
       .single();
     if (caseErr) throw caseErr;
 
+    // first message
     const receivedAt = b.received_at
       ? new Date(b.received_at).toISOString()
       : new Date().toISOString();
