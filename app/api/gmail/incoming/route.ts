@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supa } from "../../../../lib/supabase";
+import { computeRules } from "../../../../lib/rules";
 
 // Healthcheck
 export async function GET() {
@@ -10,7 +11,7 @@ export async function POST(req: NextRequest) {
   try {
     const b = await req.json();
 
-    // idempotency by Gmail message id
+    // idempotency by external_id (e.g., Gmail message id)
     if (b.external_id) {
       const { data: existing, error: checkErr } = await supa
         .from("cases")
@@ -23,6 +24,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // compute risk & SLA
+    const { risk, sla_due } = computeRules({ subject: b.subject });
+
     // create case
     const { data: caseRow, error: caseErr } = await supa
       .from("cases")
@@ -30,7 +34,9 @@ export async function POST(req: NextRequest) {
         source: "gmail",
         subject: b.subject ?? "",
         ext_ref: b.external_id ?? null,
-        status: "new"
+        status: "new",
+        risk,
+        sla_due
       })
       .select()
       .single();
