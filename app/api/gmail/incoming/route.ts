@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { supa } from "../../../../lib/supabase";
 import { computeRules } from "../../../../lib/rules";
 
-// Healthcheck
 export async function GET() {
   return NextResponse.json({ ok: true });
 }
@@ -23,7 +22,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: true, skipped: "duplicate" });
       }
     }
-
     // compute risk & SLA
     const { risk, sla_due } = computeRules({ subject: b.subject });
 
@@ -58,7 +56,6 @@ export async function POST(req: NextRequest) {
       is_draft: false
     });
     if (msgErr) throw msgErr;
-
     return NextResponse.json({ ok: true, case_id: caseRow.id });
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: String(e?.message || e) }, { status: 400 });
