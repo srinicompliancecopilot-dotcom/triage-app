@@ -1,4 +1,4 @@
-import { supa } from "../../lib/supabase";
+import { supa } from "../../../lib/supabase";
 
 type CaseRow = {
   id: string;
